@@ -1,0 +1,68 @@
+Box-Cox statistics for help in choosing transformations
+----------------------------------------------------------
+by Richard Goldstein, Qualitas, Brighton, MA  EMAIL goldst@@harvarda.bitnet
+
+^boxcoxg^ lower-search-limit upper-limit step-size varlist [^if^ exp] [^in^ range]
+
+This ado-file is used to search for possible transformations of the dependent
+variable in a linear model (regression, anova) using the Box-Cox procedure.
+
+This procedure limits the choice to the "power family", as follows:
+
+                 (y^^lambda-1)/lambda         if lambda not equal to 0
+    y^^(lambda) =
+                 log(y)                      if lambda equal to 0
+
+This includes many types of transformations, but certainly not all that might
+be useful; further, this family is not useful when the dependent variable is a
+proportion.  Of course, it is obvious that this family cannot be used when
+negative numbers are possible.  Finally, note that this procedure is
+specifically aimed at transformations of the dependent variable only.
+
+
+Note that sometimes the result of ^boxcoxg^ will be a missing value--this means
+that this particular transformation is not possible with the data provided.
+
+^boxcoxg^ can be used to search for the best transformation or to examine just
+one particular transformation.  In either case, you MUST enter three number
+prior to entering the variable list.  The first number is the minimum value of
+lambda that you want to search over, the second is the maximum, while the
+third number is the step size.  If you just want to see the results for one
+particular value of lambda, enter the same number for the minimum and the
+maximum and enter any positive value for the step size (DO NOT enter a step
+size of 0).  If you want to search over the space 0 (log transform) to 1 (no
+transform) with a step size of .1, enter `^boxcoxg 0 1 .1^ <varlist>'.  Negative
+numbers are allowed for either the minimum or the maximum.
+
+The data set is automatically cleared when the ado-file is finished so you can
+immediately re-enter ^boxcoxg^ with a finer search pattern if you so desire.  For
+example, your first search might be from -3 to 3 with a step size of .25; you
+might then search from one step smaller than the minimum found to one step
+larger with a much smaller step size (e.g., -.5 0 .01).  Do not attempt to use
+a step size smaller than .01, as this is not allowed.
+
+The only output is a three-column list: the first column is lambda, the
+transformation parameter; the second is the error sum of squares; while the
+third is the log-likelihood.  You choose the smalled SSE (largest
+log-likelihood) as the best transformation, or something close to this that
+makes substantive sense.  The code could be easily modified to allow
+likelihood-ratio tests, using the CRC-provided ado file (see STB-1) if the
+user cared to do so.  The code could also be easily modified so that the
+results, either SSE or log-likelihood, could be graphed if so desired.
+
+Example:
+
+^. us weisberg, replace^
+(Weisberg, 1985, p. 149)
+
+^. boxcoxg -2 2 .5 area peri^
+lambda          SSE     Log-likelihood
+-2.00       90372.63      -142.6462
+-1.50       19289.59      -123.3415
+-1.00        4708.16      -105.7132
+-0.50        1301.88       -89.6446
+ 0.00         377.30       -74.1632
+ 0.50         116.26       -59.4482
+ 1.00         217.96       -67.3039
+ 1.50        1168.32       -88.2915
+ 2.00        5493.07      -107.6405

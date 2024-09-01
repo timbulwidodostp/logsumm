@@ -1,0 +1,264 @@
+Adjusted summary statistics for logarithmic regressions
+-------------------------------------------------------
+by Richard Goldstein, Qualitas, Brighton, MA  EMAIL goldst@@harvarda.bitnet
+
+                        ^logsumm^ varlist
+
+Because of the types of calculations that must be made, ^if^ and ^in^ are
+^NOT^ allowed; instead ^drop^ cases that you don't want to use in the
+regression (or ^keep^ only those cases that you want).
+
+Choice of functional form is one of the hardest, and least capable of
+automation, modeling decisions in regression analysis.  Probably the most
+important criterion is the analyst's substantive, or theoretical, knowledge of
+the situation.  However, this is rarely sufficient in itself.  A number of
+tools have been devised to help analysts choose the appropriate functional
+form.  This ado-file presents a number of those tools in one package for the
+special, but widely applicable, case of choosing between a linear and a
+log-linear form.
+
+The general situation involves a choice among at least the following four
+forms:
+
+1. Linear: y = b0 + b1*X1
+2. Semi-logarithmic: log(y) = b0 + b1*X1
+3. Quadratic: y = b0 + b1*X1 + b2*(X1-squared)
+4. Logarithmic: log(y) = b0 + b1*log(X1)
+
+This particular ado-file is primarily aimed at helping users to distinguish
+between the first two of these forms, but can also be helpful regarding the
+other two (some additional comments appear below).
+
+Although there are many discussions of how to make such a choice in the
+statistical literatures of several disciplines, many users just compare the
+summary statistics from the two regressions.  However, when the dependent
+variable in a linear regression is a logarithmic transform, the summary
+statistics are not comparable to the summary statistics from an untransformed
+regression.  G.S.  Maddala (1988), Introduction to Econometrics, New York:
+Macmillan Publishing Co., puts it this way:
+
+    When comparing the linear with the log-linear forms, we cannot
+    compare the R-squared's because R-squared is the ratio of explained
+    variance to the total variance and the variances of y and log y are
+    different.  Comparing R-squared's in this case is like comparing two
+    individuals, A and B, where A eats 65% of a carrot cake and B eats 70%
+    of a strawberry cake.  The comparison does not make sense because
+    there are two different cakes.  (p. 177)
+
+Since many of the other summary statistics, including RMSE and the F-statistic
+are problems for the same reason (different amount of variation in the
+dependent variable), this program provides these statistics also.
+
+These summary statistics, as shown in the example below are provided for five
+(5) models: the raw variable model, the semi-log model (log of dependent
+variable), the adjusted output from the raw model (adjusted by taking the logs
+of the predicted values and the dependent variable and calculating the summary
+statistics), and two adjusted versions of the log model.
+
+Note that this presentation is not meant to imply that you should choose
+between these functional forms based solely on these summary statistics; lots
+of other things, including substantive knowledge (is a multiplicative or an
+additive scale preferable?) need to be taken into account.  Another thing you
+may find helpful is a plot showing both the untransformed variable (using,
+say, the left scale) and the transformed variable (using, say, the right
+scale), with the ^rescale^ and ^rlog^ ^graph^ options.
+
+Two sets of adjusted statistics are provided:  (1) called "adj. exp" is an
+adjustment of the anti-log to take account of the changing skewness; (2)
+called "exp" is just the anti-log.  Many people re-transform the results from
+log-transformed equations by just using the anti-log (exponential); however,
+if the log transformation is correct, then this gives you the median rather
+than the mean (regression normally gives you an expected, or conditional, mean
+value).  To get the mean you must adjust this by using the variance from the
+regression.  See, e.g., D.M.  Miller (1984), "Reducing Transformation Bias in
+Curve Fitting" The American Statistician, 38, pp. 124-6; W.H.  Greene
+(1990), Econometric Analysis, New York:  Macmillan Publishing Company, p.
+168; Granger (cited above), p. 132; or, any of the papers cited in
+^logdummy.hlp^.
+
+The summary statistics from all five models, including from the two
+regressions that are shown anyway, appear together in a table.  The summary
+statistics shown are: R-squared, Adjusted R-squared, the F-value for the
+regression, the root mean squared error (RMSE) for the regression, and the
+coefficient of variation for the regression.  Also, at the bottom of each
+regression output, I provide the Durbin-Watson statistic in unadjusted form;
+this is provided since often a log transform is used because of problems that
+will cause D-W to fail.
+
+The program automatically transforms the dependent variable for you.
+
+Note that this ado-file does not in anyway transform the right-hand-side, or
+independent variables, in any way.  Thus, if you think the real competition is
+between the log-transformed model and an untransformed model with a quadratic
+effect on the right-hand side, then you will probably need to run this ado-file
+twice, once with the quadratic term included on the right, and once without 
+it.  As a side-benefit you might even find that the log-transformed model
+with a quadratic term is best!  Similarly, if you want to compare a model
+that is transformed to logs on both the right and left sides, then again
+you should probably use this ado-file twice.
+
+I also include two other procedures in the output:  (1) a "test" of whether it
+is possible to reject either the linear or the log-transformed version; and,
+(2) a simple run of the ^boxcoxg^ transformation ado-file (see its article and/or
+help file for more information).
+
+The Godfrey, et al., article (cited in the STB article) compares a number of
+tests and finds that the PE test, included here, and the Ramsey RESET test,
+included in STB-2 as ^ramsey^, are among the best tests even when assumptions
+are violated.
+
+There are other worthwhile things to do, at least two of which are possible in
+Stata.  First, and very easy in Stata, is a graph showing both the transformed
+and untransformed dependent variable on one graph, with one y-axis in the
+untransformed scale and the other in the transformed scale.  Two examples, one
+of made-up data and one of real data show this.  The other procedure requires
+the use of the Bootstrap; Stata's ado-file for this was discussed in The
+Stata News, January 1991, Vol. 7, No. 1, p. 6; use of the bootstrap to help
+choose between non-nested models is discussed in B. Efron (1984), "Comparing
+Non-Nested Linear Models", _Journal of the American Statistical Association_,
+79: 791-803.
+
+The ^logdummy.ado^ file canNOT be used at the end of a run using this file since
+the last regression actually estimated by this ado-file is for the ^boxcoxg^ run.
+Thus, to use ^logdummy^, you must actually re-estimate the log-transformed
+regression.  (See ^logdummy.hlp^.)
+
+Example using ^nwk.dta^ (Neter, Wasserman, and Kutner. 1989. Applied Linear
+                       Regression Models. 2d ed. Homewood, IL: Irwin.)
+^. import excel "https://raw.githubusercontent.com/timbulwidodostp/logsumm/main/logsumm/logsumm.xlsx", sheet("Sheet1") firstrow clear^
+
+^. logsumm Dependen Independen_1 Independen_2 Independen_3^
+
+
+      Source |       SS           df       MS      Number of obs   =        63
+-------------+----------------------------------   F(3, 59)        =      3.54
+       Model |  .483188815         3  .161062938   Prob > F        =    0.0199
+    Residual |  2.68432924        59  .045497106   R-squared       =    0.1525
+-------------+----------------------------------   Adj R-squared   =    0.1095
+       Total |  3.16751806        62  .051089001   Root MSE        =     .2133
+
+------------------------------------------------------------------------------
+    Dependen | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+Independen_1 |  -.1509132   .1965015    -0.77   0.446    -.5441118    .2422855
+Independen_2 |   -.650974   .2529105    -2.57   0.013    -1.157047   -.1449013
+Independen_3 |   .3961792   .1478799     2.68   0.010     .1002722    .6920862
+       _cons |   15.54428   3.519673     4.42   0.000     8.501431    22.58713
+------------------------------------------------------------------------------
+Durbin Watson Statistic = 1.6984631
+
+
+      Source |       SS           df       MS      Number of obs   =        63
+-------------+----------------------------------   F(3, 59)        =      3.34
+       Model |  .004129414         3  .001376471   Prob > F        =    0.0251
+    Residual |   .02430407        59  .000411933   R-squared       =    0.1452
+-------------+----------------------------------   Adj R-squared   =    0.1018
+       Total |  .028433484        62  .000458605   Root MSE        =     .0203
+
+------------------------------------------------------------------------------
+     logdepv | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+Independen_1 |  -.0138088   .0186977    -0.74   0.463    -.0512228    .0236051
+Independen_2 |  -.0611447   .0240651    -2.54   0.014     -.109299   -.0129905
+Independen_3 |   .0360863   .0140712     2.56   0.013     .0079299    .0642427
+       _cons |   2.832875   .3349068     8.46   0.000     2.162728    3.503022
+------------------------------------------------------------------------------
+Durbin Watson Statistic = 1.724955
+
+Following are some summary statistics for each of the above two models
+3 of the 5 sets of statistics are 'adjusted', the other two just repeat
+what was shown above for ease of comparison.
+
+The first column shows the unadjusted statistics for the linear model,
+just as shown in the first regression above; the second column shows
+summary statistics for the same model but this time adjusted by
+transforming to logs; the third column repeats the unadjusted figures
+from the transformed regression (the second regression above); this is
+followed by two sets of adjusted statistics: (1) a less biased
+re-transformation than the standard one (see the help file or the
+STB article); (2) using the 'standard', biased, re-transformation
+by just exponentiating the predicted values from the log model.
+
+             |             Adjusted               Better    Standard
+             |    Raw        Raw        Log     Adj'd Log  Adj'd Log
+----------------------------------------------------------------------
+R-Square     |   0.1525     0.1446     0.1452     0.1531     0.1530
+Adjusted R-SQ|   0.1095     0.1011     0.1018     0.1101     0.1100
+F-Value      |   3.54       3.32       3.34       3.56       3.55
+RMSE         |   0.2133     0.0203     0.0203     0.2132     0.2133
+CV (*100)    |   1.96       0.85       0.85       1.96       1.96
+
+
+Results of the MacKinnon-Davidson (PE) test:
+The t-statistic (p-value) for test of linearity is      1.511   0.136
+The t-statistic (p-value) for test of log-linearity is     -1.469   0.147
+
+Note that it is quite possible that BOTH the above tests might be
+significant (non-significant)!!
+This means that this test is indeterminate for this model;
+in this case, the use of boxcoxg.ado may be particularly helpful;
+regardless, you might also want to use ramsey.ado (STB-2).
+If only one test is significant, then we reject the functional
+form for which the test is significant and 'accept' the other form.
+
+Following is a crude look using boxcoxg; if this appears to be informative,
+you might want to use boxcoxg again with a finer grid; see boxcoxg.hlp
+
+lambda          SSE     Log-likelihood
+-3.00           3.58       -40.2067
+-2.50           3.44       -38.9258
+-2.00           3.31       -37.6863
+-1.50           3.18       -36.4879
+-1.00           3.07       -35.3305
+-0.50           2.96       -34.2137
+ 0.00           2.86       -33.1374
+ 0.50           2.77       -32.1010
+ 1.00           2.68       -31.1041
+ 1.50           2.60       -30.1462
+ 2.00           2.53       -29.2269
+ 2.50           2.46       -28.3454
+ 3.00           2.39       -27.5013
+
+
+^. d, d^
+
+Contains data
+ Observations:            63                  
+    Variables:            28                  
+        Width:           153                  
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Variable      Storage   Display    Value
+    name         type    format    label      Variable label
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+No              byte    %10.0g                No
+Sort            byte    %10.0g                Sort
+Id              byte    %10.0g                Id
+Year            int     %10.0g                Year
+Districts       str16   %16s                  Districts
+Dependen        double  %10.0g                Dependen
+Independen_1    double  %10.0g                Independen_1
+Independen_2    double  %10.0g                Independen_2
+Independen_3    double  %10.0g                Independen_3
+logdepv         float   %9.0g                 Log of Original D.V.
+yhatr           float   %9.0g                 Pred. Values/Untransformed Reg.
+yhatl           float   %9.0g                 Log of Pred. Values/Untransformed Reg.
+_resr           double  %10.0g                Residuals/Untransformed Reg.
+_DWr            double  %10.0g                D-W/raw regression
+_SSEr           float   %9.0g                 Log transformed SSE
+_SSTr           float   %9.0g                 Log transformed SST
+yhat            double  %10.0g                Pred.Values/Transformed Reg, Logs
+_res            double  %10.0g                Residuals/Transformed Reg, Logs
+stdf            double  %10.0g                Forecast Err/Transformed Reg, Logs
+yhata           float   %9.0g                 Retransformed, Adj., Pred. Values
+yhate           float   %9.0g                 Retransformed, UNadj., Pred. Values
+_SSEa           float   %9.0g                 Retransformed, Adjusted, SSE
+_SSEe           float   %9.0g                 Retransformed, UNadjusted, SSE
+_SSTa           float   %9.0g                 Retransformed, Adjusted, SST
+_SSTe           float   %9.0g                 Retransformed, UNadjusted, SST
+_DW             double  %10.0g                D-W from Transformed Reg.
+lidiff          float   %9.0g                 Difference between Raw and Re-transformed log Residuals
+lodiff          float   %9.0g                 Difference between Log and Logged Raw Residuals
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Sorted by: 
+     Note: Dataset has changed since last saved.
+
