@@ -1,5 +1,6 @@
-d 'DEA': Data envelopment analysis
+d 'logsumm': Adjusted summary statistics for logarithmic regressions Use logsumm With STATA 18
 d
-f dea.ado
-f dea.sthlp
-f coelli_table6.4.dta
+f boxcoxg.ado
+f boxcoxg.hlp
+f logsumm.ado
+f logsumm.hlp
