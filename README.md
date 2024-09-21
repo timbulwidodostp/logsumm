@@ -1,6 +1,8 @@
 # logsumm
 Adjusted summary statistics for logarithmic regressions Use logsumm With STATA 18
 
+https://www.youtube.com/watch?v=-K4nTyMjpPU
+
 Olah Data Semarang
 
 WA : +6285227746673 (085227746673)
